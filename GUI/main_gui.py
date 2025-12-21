@@ -315,7 +315,7 @@ class StartPage(tk.Frame):
         self.title_label = tk.Label(
             self.title_frame,
             text="TES DISLEKSIA",
-            font=("Arial", 95, "bold"),
+            font=("Arial", 95, "bold"), # 25
             bg="#f5f7fa",
             fg="#2c5aa0"
         )
@@ -329,7 +329,7 @@ class StartPage(tk.Frame):
         self.desc_label = tk.Label(
             self.content_frame,
             text="Tekan tombol di bawah untuk memulai tes",
-            font=("Arial", 38),
+            font=("Arial", 38), # 15
             bg="#f5f7fa",
             fg="#5a6c7d",
             wraplength=900
