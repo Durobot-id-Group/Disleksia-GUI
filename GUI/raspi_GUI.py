@@ -114,7 +114,7 @@ class IntroPage(tk.Frame):
             self.logo_text = tk.Label(
                 self.logo_frame,
                 text="TES DISLEKSIA",
-                font=("Arial", 45, "bold"),
+                font=("Arial", 32, "bold"),
                 bg="#f5f7fa",
                 fg="#2c5aa0"
             )
@@ -127,8 +127,8 @@ class IntroPage(tk.Frame):
         # Progress bar canvas - lebih besar dan clean
         self.progress_canvas = tk.Canvas(
             self.loading_frame,
-            width=200,
-            height=4,
+            width=280,
+            height=6,
             bg="#f5f7fa",
             highlightthickness=0
         )
@@ -255,27 +255,27 @@ class IntroPage(tk.Frame):
             
             # Background track - rounded
             self.progress_canvas.create_rectangle(
-                0, 0, 200, 4,
+                0, 0, 280, 6,
                 fill="#e1e8ed",
                 outline="",
                 width=0
             )
             
             # Progress fill - smooth gradient-like dengan rounded ends
-            progress_width = int(200 * (self.progress_value / 100))
+            progress_width = int(280 * (self.progress_value / 100))
             if progress_width > 0:
                 # Main progress bar dengan warna gradient
                 self.progress_canvas.create_rectangle(
-                    0, 0, progress_width, 4,
+                    0, 0, progress_width, 6,
                     fill="#4a90e2",
                     outline="",
                     width=0
                 )
                 
                 # Highlight effect di ujung untuk efek "glow"
-                if progress_width > 6:
+                if progress_width > 10:
                     self.progress_canvas.create_rectangle(
-                        progress_width - 6, 0, progress_width, 4,
+                        progress_width - 10, 0, progress_width, 6,
                         fill="#5ba3f5",
                         outline="",
                         width=0
@@ -315,30 +315,30 @@ class StartPage(tk.Frame):
         self.title_label = tk.Label(
             self.title_frame,
             text="TES DISLEKSIA",
-            font=("Arial", 24, "bold"),
+            font=("Arial", 28, "bold"),
             bg="#f5f7fa",
             fg="#2c5aa0"
         )
-        self.title_label.pack(pady=(0, 4))
+        self.title_label.pack(pady=(0, 5))
         
         # Title underline
-        self.title_line = tk.Frame(self.title_frame, bg="#4a90e2", height=2)
-        self.title_line.pack(fill="x", padx=20)
+        self.title_line = tk.Frame(self.title_frame, bg="#4a90e2", height=3)
+        self.title_line.pack(fill="x", padx=30)
 
         # Description dengan padding
         self.desc_label = tk.Label(
             self.content_frame,
             text="Tekan tombol di bawah untuk memulai tes",
-            font=("Arial", 10),
+            font=("Arial", 11),
             bg="#f5f7fa",
             fg="#5a6c7d",
-            wraplength=225
+            wraplength=320
         )
-        self.desc_label.pack(pady=9)
+        self.desc_label.pack(pady=12)
 
         # Button frame untuk spacing
         self.button_frame = tk.Frame(self.content_frame, bg="#f5f7fa")
-        self.button_frame.pack(pady=8)
+        self.button_frame.pack(pady=10)
 
         # Start Button dengan shadow effect
         self.button_shadow = tk.Frame(
@@ -351,15 +351,15 @@ class StartPage(tk.Frame):
         self.start_button = tk.Button(
             self.button_frame,
             text="MULAI TES",
-            font=("Arial", 16, "bold"),
+            font=("Arial", 18, "bold"),
             bg="#4a90e2",
             fg="white",
             activebackground="#2c5aa0",
             activeforeground="white",
             relief="flat",
             cursor="hand2",
-            padx=18,
-            pady=8,
+            padx=24,
+            pady=10,
             command=self.start_with_audio
         )
         self.start_button.pack()
@@ -424,12 +424,12 @@ class TestPage(tk.Frame):
 
         # Progress indicator di atas dengan spacing
         self.progress_container = tk.Frame(self.content_frame, bg="#f5f7fa")
-        self.progress_container.pack(pady=(0, 10))
+        self.progress_container.pack(pady=(0, 12))
         
         self.progress_label = tk.Label(
             self.progress_container,
             text="Soal 1 dari 5",
-            font=("Arial", 12, "bold"),
+            font=("Arial", 14, "bold"),
             bg="#f5f7fa",
             fg="#2c5aa0"
         )
@@ -437,37 +437,37 @@ class TestPage(tk.Frame):
 
         # Timer section dengan spacing
         self.timer_container = tk.Frame(self.content_frame, bg="#f5f7fa")
-        self.timer_container.pack(pady=9)
+        self.timer_container.pack(pady=10)
 
         # Timer dengan border dan shadow
         self.timer_shadow = tk.Frame(
             self.timer_container,
             bg="#c1d5e8"
         )
-        self.timer_shadow.pack(padx=2, pady=2)
+        self.timer_shadow.pack(padx=3, pady=3)
 
         self.timer_frame = tk.Frame(
             self.timer_container,
             bg="white",
             highlightbackground="#4a90e2",
-            highlightthickness=2
+            highlightthickness=3
         )
         self.timer_frame.pack()
 
         self.label_timer = tk.Label(
             self.timer_frame,
             text="00:00",
-            font=("Arial", 60, "bold"),
+            font=("Arial", 72, "bold"),
             bg="white",
             fg="#2c5aa0",
-            padx=18,
-            pady=9
+            padx=24,
+            pady=12
         )
         self.label_timer.pack()
 
         # Question section dengan spacing
         self.question_container = tk.Frame(self.content_frame, bg="#f5f7fa")
-        self.question_container.pack(pady=(10, 0))
+        self.question_container.pack(pady=(12, 0))
 
         # Question dengan background
         self.question_frame = tk.Frame(
@@ -479,11 +479,11 @@ class TestPage(tk.Frame):
         self.label_question = tk.Label(
             self.question_frame,
             text="Soal ke-1",
-            font=("Arial", 18, "bold"),
+            font=("Arial", 20, "bold"),
             bg="#4a90e2",
             fg="white",
-            padx=14,
-            pady=6
+            padx=18,
+            pady=8
         )
         self.label_question.pack()
 
@@ -561,31 +561,31 @@ class ProcessPage(tk.Frame):
         self.title_label = tk.Label(
             self.content_frame,
             text="MEMPROSES HASIL",
-            font=("Arial", 21, "bold"),
+            font=("Arial", 24, "bold"),
             bg="#f5f7fa",
             fg="#2c5aa0"
         )
-        self.title_label.pack(pady=(0, 5))
+        self.title_label.pack(pady=(0, 6))
 
         # Animated dots
         self.dots_label = tk.Label(
             self.content_frame,
             text="",
-            font=("Arial", 14),
+            font=("Arial", 16),
             bg="#f5f7fa",
             fg="#5a6c7d"
         )
-        self.dots_label.pack(pady=6)
+        self.dots_label.pack(pady=8)
 
         # Progress circle container dengan spacing
         self.circle_container = tk.Frame(self.content_frame, bg="#f5f7fa")
-        self.circle_container.pack(pady=8)
+        self.circle_container.pack(pady=10)
 
         # Canvas untuk circular progress
         self.progress_canvas = tk.Canvas(
             self.circle_container,
-            width=105,
-            height=105,
+            width=120,
+            height=120,
             bg="#f5f7fa",
             highlightthickness=0
         )
@@ -608,25 +608,25 @@ class ProcessPage(tk.Frame):
         
         # Background circle
         self.progress_canvas.create_oval(
-            15, 15, 90, 90,
+            17, 17, 103, 103,
             outline="#e1e8ed",
-            width=5
+            width=6
         )
         
         # Animated arc
         extent = (self.angle % 360)
         self.progress_canvas.create_arc(
-            15, 15, 90, 90,
+            17, 17, 103, 103,
             start=-90, extent=extent,
-            outline="#4a90e2", width=5,
+            outline="#4a90e2", width=6,
             style="arc"
         )
         
         # Center percentage
         self.progress_canvas.create_text(
-            52, 52,
+            60, 60,
             text=f"{int((extent/360)*100)}%",
-            font=("Arial", 16, "bold"),
+            font=("Arial", 18, "bold"),
             fill="#2c5aa0"
         )
         
@@ -670,59 +670,59 @@ class ResultPage(tk.Frame):
         self.title_label = tk.Label(
             self.content_frame,
             text="HASIL TES",
-            font=("Arial", 19, "bold"),
+            font=("Arial", 22, "bold"),
             bg="#f5f7fa",
             fg="#2c5aa0"
         )
-        self.title_label.pack(pady=(0, 9))
+        self.title_label.pack(pady=(0, 10))
 
         # Result container dengan spacing
         self.result_container = tk.Frame(self.content_frame, bg="#f5f7fa")
-        self.result_container.pack(pady=8)
+        self.result_container.pack(pady=10)
 
         # Result dengan border dan shadow
         self.result_shadow = tk.Frame(
             self.result_container,
             bg="#c1d5e8"
         )
-        self.result_shadow.pack(padx=2, pady=2)
+        self.result_shadow.pack(padx=3, pady=3)
 
         self.result_frame = tk.Frame(
             self.result_container,
             bg="white",
             highlightbackground="#4a90e2",
-            highlightthickness=2
+            highlightthickness=3
         )
         self.result_frame.pack()
 
         self.label_result = tk.Label(
             self.result_frame,
             text="",
-            font=("Arial", 24, "bold"),
+            font=("Arial", 28, "bold"),
             bg="white",
             fg="#2c5aa0",
-            padx=22,
-            pady=12
+            padx=28,
+            pady=14
         )
         self.label_result.pack()
 
         # Button container dengan spacing
         self.button_container = tk.Frame(self.content_frame, bg="#f5f7fa")
-        self.button_container.pack(pady=(10, 0))
+        self.button_container.pack(pady=(12, 0))
 
         # Restart button
         self.restart_button = tk.Button(
             self.button_container,
             text="TES ULANG",
-            font=("Arial", 14, "bold"),
+            font=("Arial", 16, "bold"),
             bg="#4a90e2",
             fg="white",
             activebackground="#2c5aa0",
             activeforeground="white",
             relief="flat",
             cursor="hand2",
-            padx=15,
-            pady=6,
+            padx=18,
+            pady=8,
             command=self.restart_test
         )
         self.restart_button.pack()
