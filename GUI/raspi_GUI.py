@@ -51,7 +51,7 @@ class App(tk.Tk):
         # ===== TARGET RESOLUTION =====
         self.geometry("480x320")
         self.resizable(False, False)
-        # self.attributes("-fullscreen", True)
+        self.attributes("-fullscreen", True)
 
         self.title("Tes Disleksia")
 
@@ -93,7 +93,7 @@ class IntroPage(tk.Frame):
         self.label = tk.Label(
             self,
             text="TES DISLEKSIA",
-            font=("Arial", c.sf(180), "bold"),
+            font=("Arial", 45, "bold"),
             fg="#2c5aa0",
             bg="#f5f7fa"
         )
@@ -110,7 +110,7 @@ class StartPage(tk.Frame):
         tk.Label(
             self,
             text="TES DISLEKSIA",
-            font=("Arial", c.sf(95), "bold"),
+            font=("Arial", 24, "bold"),
             fg="#2c5aa0",
             bg="#f5f7fa"
         ).pack(pady=c.sf(15))
@@ -118,7 +118,7 @@ class StartPage(tk.Frame):
         tk.Label(
             self,
             text="Tekan tombol untuk memulai",
-            font=("Arial", c.sf(38)),
+            font=("Arial", 10),
             fg="#5a6c7d",
             bg="#f5f7fa"
         ).pack(pady=c.sf(10))
@@ -126,7 +126,7 @@ class StartPage(tk.Frame):
         tk.Button(
             self,
             text="MULAI TES",
-            font=("Arial", c.sf(65), "bold"),
+            font=("Arial", 16, "bold"),
             bg="#4a90e2",
             fg="white",
             padx=c.sf(40),
@@ -146,7 +146,7 @@ class TestPage(tk.Frame):
         self.progress = tk.Label(
             self,
             text="Soal 1 dari 5",
-            font=("Arial", c.sf(48), "bold"),
+            font=("Arial", 12, "bold"),
             fg="#2c5aa0",
             bg="#f5f7fa"
         )
@@ -155,7 +155,7 @@ class TestPage(tk.Frame):
         self.timer = tk.Label(
             self,
             text="00:00",
-            font=("Arial", c.sf(240), "bold"),
+            font=("Arial", 60, "bold"),
             fg="#2c5aa0",
             bg="white"
         )
@@ -164,7 +164,7 @@ class TestPage(tk.Frame):
         self.question = tk.Label(
             self,
             text="Soal ke-1",
-            font=("Arial", c.sf(72), "bold"),
+            font=("Arial", 18, "bold"),
             fg="white",
             bg="#4a90e2",
             padx=c.sf(20),
@@ -198,7 +198,7 @@ class ProcessPage(tk.Frame):
         self.label = tk.Label(
             self,
             text="Memproses...",
-            font=("Arial", c.sf(65), "bold"),
+            font=("Arial", 16, "bold"),
             fg="#2c5aa0",
             bg="#f5f7fa"
         )
@@ -215,7 +215,7 @@ class ResultPage(tk.Frame):
         self.result = tk.Label(
             self,
             text="",
-            font=("Arial", c.sf(95), "bold"),
+            font=("Arial", 24, "bold"),
             fg="#2c5aa0",
             bg="white",
             padx=c.sf(30),
@@ -226,7 +226,7 @@ class ResultPage(tk.Frame):
         tk.Button(
             self,
             text="TES ULANG",
-            font=("Arial", c.sf(58), "bold"),
+            font=("Arial", 14, "bold"),
             bg="#4a90e2",
             fg="white",
             padx=c.sf(30),
