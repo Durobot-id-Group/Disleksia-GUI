@@ -19,20 +19,20 @@ BAUD_RATE = 115200
 GAIN = 1000.0
 VREF = 1.65
 
-# ================== INIT AUDIO ==================
-pygame.mixer.init()
+# # ================== INIT AUDIO ==================
+# pygame.mixer.init()
 
-# Audio (pygame)
-# try:
-#     import pygame
-#     # Try to set audio driver env before init on some Linux systems
-#     if 'SDL_AUDIODRIVER' not in os.environ:
-#         os.environ['SDL_AUDIODRIVER'] = 'alsa'
-#     pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
-#     pygame.mixer.music.set_volume(0.8)
-# except Exception as e:
-#     pygame = None
-#     print("Pygame audio init failed or not available:", e)
+Audio (pygame)
+try:
+    import pygame
+    # Try to set audio driver env before init on some Linux systems
+    if 'SDL_AUDIODRIVER' not in os.environ:
+        os.environ['SDL_AUDIODRIVER'] = 'alsa'
+    pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
+    pygame.mixer.music.set_volume(0.8)
+except Exception as e:
+    pygame = None
+    print("Pygame audio init failed or not available:", e)
 
 # Signal & analysis libs
 import numpy as np
@@ -784,3 +784,4 @@ class ResultPage(tk.Frame):
 if __name__ == "__main__":
     app = App()
     app.mainloop()
+
