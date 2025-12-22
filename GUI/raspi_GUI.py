@@ -9,7 +9,16 @@ TOTAL_QUESTIONS = 5
 PROCESS_DURATION = 3000    # ms (3 detik proses sebelum hasil)
 
 # ================== INIT AUDIO ==================
-pygame.mixer.init()
+#pygame.mixer.init()
+
+# ================== INIT AUDIO ==================
+import os
+
+# Set environment variable sebelum init pygame
+os.environ['SDL_AUDIODRIVER'] = 'alsa'
+
+pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
+pygame.mixer.music.set_volume(0.8)  # Set volume 80%
 
 # ================== STOPWATCH CLASS ==================
 class Stopwatch:
