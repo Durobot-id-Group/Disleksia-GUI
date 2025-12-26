@@ -447,8 +447,8 @@ class StartPage(tk.Frame):
         
         self.title_frame = tk.Frame(self.content_frame, bg="#f5f7fa")
         self.title_frame.pack(pady=(0,5))
-        self.title_label = tk.Label(self.title_frame, text="TES DISLEKSIA", font=("Arial", 28, "bold"), bg="#f5f7fa", fg="#2c5aa0")
-        self.title_label.pack(pady=(0,5))
+        self.title_label = tk.Label(self.title_frame, text="TES DISLEKSIA", font=("Arial", 14, "bold"), bg="#f5f7fa", fg="#2c5aa0")
+        self.title_label.pack(pady=(0,2))
         self.title_line = tk.Frame(self.title_frame, bg="#4a90e2", height=3)
         self.title_line.pack(fill="x", padx=30)
         self.desc_label = tk.Label(self.content_frame, text="Tekan tombol untuk memuat data EEG lalu mulai tes", font=("Arial", 11), bg="#f5f7fa", fg="#5a6c7d", wraplength=420)
@@ -588,7 +588,7 @@ class ProcessPage(tk.Frame):
         self.canvas_window = self.canvas.create_window(0, 0, window=self.content_frame, anchor="center")
         self.canvas.bind('<Configure>', self.on_canvas_configure)
         
-        self.title_label = tk.Label(self.content_frame, text="MEMPROSES HASIL", font=("Arial", 24, "bold"), bg="#f5f7fa", fg="#2c5aa0")
+        self.title_label = tk.Label(self.content_frame, text="MEMPROSES HASIL", font=("Arial", 14, "bold"), bg="#f5f7fa", fg="#2c5aa0")
         self.title_label.pack(pady=(0,6))
         self.dots_label = tk.Label(self.content_frame, text="Mohon tunggu sebentar...", font=("Arial", 16), bg="#f5f7fa", fg="#5a6c7d")
         self.dots_label.pack(pady=8)
@@ -683,8 +683,8 @@ class ResultPage(tk.Frame):
         
         # ========== HEADER ==========
         title_label = tk.Label(self.content_container, text="HASIL PEMERIKSAAN DISLEKSIA", 
-                               font=("Arial", 26, "bold"), bg="#f5f7fa", fg="#2c5aa0")
-        title_label.pack(pady=(0,5))
+                               font=("Arial", 14, "bold"), bg="#f5f7fa", fg="#2c5aa0")
+        title_label.pack(pady=(0,2))
         
         subtitle_label = tk.Label(self.content_container, 
                                   text="⚠️ Ini bukan diagnosis medis resmi - hanya indikasi awal", 
@@ -693,14 +693,14 @@ class ResultPage(tk.Frame):
         
         # ========== STATUS CARD (BESAR & BERWARNA) ==========
         status_frame = tk.Frame(self.content_container, bg=an['color'], relief="flat", bd=0)
-        status_frame.pack(pady=10, fill="x")
+        status_frame.pack(pady=5, fill="x")
         
-        icon_label = tk.Label(status_frame, text=an['icon'], font=("Arial", 48), bg=an['color'])
+        icon_label = tk.Label(status_frame, font=("Arial", 24), bg=an['color'])
         icon_label.pack(pady=(15,5))
         
         diagnosis_label = tk.Label(status_frame, 
                                     text=f"Kemungkinan Disleksia: {an['diagnosis']}", 
-                                    font=("Arial", 20, "bold"), bg=an['color'], fg="white")
+                                    font=("Arial", 12, "bold"), bg=an['color'], fg="white")
         diagnosis_label.pack()
         
         confidence_label = tk.Label(status_frame, 
@@ -717,7 +717,7 @@ class ResultPage(tk.Frame):
         narasi_title.pack(anchor="w", padx=15, pady=(12,8))
         
         narasi_text = tk.Label(narasi_frame, text=an['narasi'], 
-                               font=("Arial", 12), bg="white", fg="#34495e", 
+                               font=("Arial", 8), bg="white", fg="#34495e", 
                                wraplength=600, justify="left")
         narasi_text.pack(anchor="w", padx=15, pady=(0,12))
         
@@ -755,11 +755,11 @@ class ResultPage(tk.Frame):
             bar_container = tk.Frame(chart_frame, bg="white")
             bar_container.pack(fill="x", padx=20, pady=4)
             
-            label_name = tk.Label(bar_container, text=name, font=("Arial", 10), 
-                                  bg="white", fg="#2c3e50", width=22, anchor="w")
+            label_name = tk.Label(bar_container, text=name, font=("Arial", 7),
+                                  bg="white", fg="#2c3e50", width=15, anchor="w")
             label_name.pack(side="left")
             
-            bar_bg = tk.Frame(bar_container, bg="#ecf0f1", height=20, width=300)
+            bar_bg = tk.Frame(bar_container, bg="#ecf0f1", height=12, width=180)
             bar_bg.pack(side="left", padx=5)
             
             bar_width = int(300 * (value / 100))
