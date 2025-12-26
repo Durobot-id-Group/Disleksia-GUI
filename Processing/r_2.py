@@ -482,17 +482,19 @@ class StartPage(tk.Frame):
                 self.controller.eeg_filename = csv_name
                 self.controller.eeg_logger = EEGSerialLogger(COM_PORT, BAUD_RATE, csv_name)
                 self.controller.eeg_logger.start()
-                if pygame:
-                    if os.path.exists("audio/soal 1.mp3"):
-                        pygame.mixer.music.load("audio/soal 1.mp3")
-                        pygame.mixer.music.play()
-            except:
-                pass
+            except Exception as e:
+                print("Logger error", e)
 
-            self.check_audio_finished()
+        try:
+            if pygame:
+                if os.path.exists("audio/soal 1.mp3"):
+                    pygame.mixer.music.load("audio/soal 1.mp3")
+                    pygame.mixer.music.play()
+        except: pass
 
+        self.check_audio_finished()
 
-    def chcek_audio_finished(self):
+    def check_audio_finished(self):
         try:
             if pygame.mixer.music.get_busy():
                 self.after(200, self.check_audio_finished)
