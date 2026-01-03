@@ -77,19 +77,36 @@ def deteksi_disleksia_riset(delta_signal, theta_signal, alpha_signal, beta_signa
     if kriteria_terpenuhi >= 6:
         diagnosis = "INDIKASI DISLEKSIA - KUAT"
         confidence = "TINGGI"
-        rekomendasi = "Sangat disarankan evaluasi lanjutan oleh profesional"
+        rekomendasi = "Anda dapat mengunjungi terapis disleksia terdekat ataupun psikolog untuk rujukan terapis dan penanganan lebih lanjut"
     elif kriteria_terpenuhi >= 4:
         diagnosis = "INDIKASI DISLEKSIA - RENDAH"
         confidence = "SEDANG"
-        rekomendasi = "Disarankan evaluasi lebih lanjut"
+        rekomendasi = "Anda dapat mengunjungi terapis disleksia terdekat ataupun psikolog untuk rujukan terapis dan penanganan lebih lanjut"
     elif kriteria_terpenuhi >= 2:
         diagnosis = "TIDAK TERINDIKASI DISLEKSIA - BORDERLINE"
         confidence = "RENDAH"
-        rekomendasi = "Monitoring dan tes ulang direkomendasikan"
+        rekomendasi = "Anda dapat mengunjungi terapis disleksia terdekat ataupun psikolog untuk rujukan terapis dan penanganan lebih lanjut"
     else:
         diagnosis = "TIDAK TERINDIKASI DISLEKSIA"
         confidence = "TINGGI"
-        rekomendasi = "Pola EEG dalam batas normal"
+        rekomendasi = "Anda dapat mengunjungi terapis disleksia terdekat ataupun psikolog untuk rujukan terapis dan penanganan lebih lanjut"
+
+    # if kriteria_terpenuhi >= 6:
+    #     diagnosis = "INDIKASI DISLEKSIA - KUAT"
+    #     confidence = "TINGGI"
+    #     rekomendasi = "Sangat disarankan evaluasi lanjutan oleh profesional"
+    # elif kriteria_terpenuhi >= 4:
+    #     diagnosis = "INDIKASI DISLEKSIA - RENDAH"
+    #     confidence = "SEDANG"
+    #     rekomendasi = "Disarankan evaluasi lebih lanjut"
+    # elif kriteria_terpenuhi >= 2:
+    #     diagnosis = "TIDAK TERINDIKASI DISLEKSIA - BORDERLINE"
+    #     confidence = "RENDAH"
+    #     rekomendasi = "Monitoring dan tes ulang direkomendasikan"
+    # else:
+    #     diagnosis = "TIDAK TERINDIKASI DISLEKSIA"
+    #     confidence = "TINGGI"
+    #     rekomendasi = "Pola EEG dalam batas normal"
 
     results.update({
         'diagnosis': diagnosis,

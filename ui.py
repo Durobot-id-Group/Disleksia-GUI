@@ -9,6 +9,10 @@ import reportlab
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
+from reportlab.lib.colors import HexColor
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+import drive_sync # (jika diperlukan untuk sinkronisasi cloud)
 from datetime import datetime
 import io
 
@@ -58,9 +62,11 @@ class Stopwatch:
         minutes = self.elapsed_time // 60
         seconds = int(self.elapsed_time % 60)
         self.label.config(text=f"{minutes:02d}:{seconds:02d}")
-        self.elapsed_time += 1
+        
         if self.on_tick:
             self.on_tick(self.elapsed_time)
+
+        self.elapsed_time += 1
         self.parent.after(1000, self._update)
         
 # ================== MAIN APP/UI ==================
@@ -195,8 +201,8 @@ class StartPage(tk.Frame):
         self.button_frame = tk.Frame(self.content_frame, bg="#f5f7fa")
         self.button_frame.pack(pady=10)
 
-        self.load_button = tk.Button(self.button_frame, text="Muat Data EEG (CSV)", font=("Arial", 12), bg="#6aa84f", fg="white", relief="flat", cursor="hand2", command=self.load_eeg)
-        self.load_button.grid(row=0, column=0, padx=6)
+        # self.load_button = tk.Button(self.button_frame, text="Muat Data EEG (CSV)", font=("Arial", 12), bg="#6aa84f", fg="white", relief="flat", cursor="hand2", command=self.load_eeg)
+        # self.load_button.grid(row=0, column=0, padx=6)
 
         self.start_button = tk.Button(self.button_frame, text="MULAI TES", font=("Arial", 18, "bold"), bg="#4a90e2", fg="white", relief="flat", cursor="hand2", padx=24, pady=10, command=self.start_with_audio)
         self.start_button.grid(row=0, column=1, padx=6)
@@ -370,8 +376,8 @@ class ProcessPage(tk.Frame):
     def run_analysis_logic(self):
         time.sleep(2)
         
-        fname = self.controller.eeg_filename
-        if fname and os.path.exists(fname):
+        fname = "dummy_normal_2.csv"
+        if fname or os.path.exists(fname):
             res = run_eeg_pipeline(fname)
         else:
             res = {"ok": False, "message": "File EEG tidak ditemukan"}
@@ -577,103 +583,440 @@ class ResultPage(tk.Frame):
         except Exception as e:
             messagebox.showerror("Error Plot", f"Gagal: {e}")
 
-    def save_to_pdf(self):
-        """Fungsi Profesional Membuat Laporan PDF"""
+    
+        """Menyimpan PDF dengan Tampilan Sinyal Medis Terstruktur"""
         ar = self.controller.analysis_results
         if not ar or not ar.get('ok'):
             messagebox.showerror("Error", "Tidak ada data untuk disimpan.")
             return
         
         try:
-            # 1. Tentukan Nama File [Waktu Tes].pdf
+            # 1. Setup File
             timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             filename = f"Hasil_Tes_{timestamp}.pdf"
             
-            # 2. Setup Canvas PDF (Ukuran A4)
             c = canvas.Canvas(filename, pagesize=A4)
-            width, height = A4
+            w, h = A4
             
-            # --- HEADER ---
-            c.setFont("Helvetica-Bold", 16)
-            c.drawString(50, height - 50, "LAPORAN ANALISIS ELEKTROENSEFALOGRAFI (EEG)")
+            # --- PALET WARNA ---
+            COLOR_TITLE_BG = HexColor("#7bed9f")
+            COLOR_HEADER_BG = HexColor("#ffcccc")
+            COLOR_CONTENT_BG = HexColor("#d1f2eb")
+            COLOR_TEXT = HexColor("#2d3436")
+            
+            # Helper: Gambar Kotak
+            def draw_box(x, y, width, height, color, radius=10):
+                c.setFillColor(color)
+                c.setStrokeColor(color)
+                c.roundRect(x, y, width, height, radius, fill=1, stroke=0)
+
+            # Helper: Text Tengah
+            def draw_centered_text(text, x_center, y, font="Helvetica-Bold", size=14, color=HexColor("#000000")):
+                c.setFont(font, size)
+                c.setFillColor(color)
+                c.drawCentredString(x_center, y, text)
+
+            # ================= HEADER =================
+            draw_box(w/2 - 150, h - 80, 300, 50, COLOR_TITLE_BG, radius=15)
+            draw_centered_text("HASIL DIAGNOSA", w/2, h - 68, size=22)
+            
             c.setFont("Helvetica", 10)
-            c.drawString(50, height - 70, f"Tanggal/Waktu Tes: {datetime.now().strftime('%d %B %Y, %H:%M:%S')}")
-            c.drawString(50, height - 85, f"ID File: {filename}")
-            c.line(50, height - 95, width - 50, height - 95) # Garis pembatas
-            
-            # --- HASIL DIAGNOSIS ---
-            an = ar['analysis']
-            score = an['kriteria_terpenuhi']
-            diagnosis_text = "TERINDIKASI DISLEKSIA" if score >= 6 else "TIDAK TERINDIKASI DISLEKSIA"
-            color_res = colors.red if score >= 6 else colors.green
-            
-            c.setFont("Helvetica-Bold", 12)
-            c.drawString(50, height - 130, "KESIMPULAN ANALISIS:")
-            
-            c.setFillColor(color_res)
-            c.setFont("Helvetica-Bold", 24)
-            c.drawString(50, height - 160, diagnosis_text)
-            
-            c.setFillColor(colors.black)
-            c.setFont("Helvetica", 11)
-            c.drawString(50, height - 180, f"Confidence Score: {an['confidence_score']:.1f}% ({an['confidence']})")
-            c.drawString(50, height - 195, f"Rekomendasi: {an['rekomendasi']}")
+            c.setFillColor(HexColor("#636e72"))
+            c.drawCentredString(w/2, h - 100, f"Tanggal: {datetime.now().strftime('%d %B %Y')}")
 
-            # --- TABEL RINCIAN ---
-            y_pos = height - 230
-            c.setFont("Helvetica-Bold", 12)
-            c.drawString(50, y_pos, "RINCIAN PARAMETER:")
-            y_pos -= 20
+            # ================= KOLOM KIRI =================
+            LEFT_X = 50
+            COL_WIDTH = 240
             
-            c.setFont("Courier", 9) # Font monospace agar rapi seperti tabel
-            for k, v in an['kriteria'].items():
-                mark = "[X]" if v['passed'] else "[ ]"
-                line = f"{mark} {v['description']:<40} | Val: {v['value']:>6.2f} (Batasan: {v['threshold']})"
-                c.drawString(60, y_pos, line)
-                y_pos -= 15
-
-            # --- MEMBUAT GAMBAR GRAFIK UNTUK PDF ---
-            # Kita tidak bisa pakai canvas tkinter, harus generate plot baru ke memory
-            c.setFont("Helvetica-Bold", 12)
-            c.drawString(50, y_pos - 20, "VISUALISASI GELOMBANG:")
+            # --- BAGIAN 1: HASIL SENSOR (DIPERBAIKI) ---
+            # Header
+            draw_box(LEFT_X + 20, h - 150, 200, 35, COLOR_HEADER_BG, radius=10)
+            draw_centered_text("Hasil Sensor", LEFT_X + 120, h - 142, size=16)
             
-            # Generate Plot Matplotlib ke Memory Buffer (Bukan layar)
-            fig = plt.figure(figsize=(7, 5)) # Ukuran disesuaikan agar muat di A4
+            # Area Grafik Professional
+            # Menggunakan rasio aspek lebar agar sinyal terlihat jelas
+            fig = plt.figure(figsize=(6, 3)) 
+            
+            # AMBIL DATA
             t = ar['t']
-            filtered = ar['filtered']
-            colors_plot = ['blue', 'orange', 'green', 'red', 'purple']
+            raw = ar['raw_uv']
+            fs = ar.get('fs', 256) # Sampling rate default 256 jika tidak ada
             
-            # Plot 5 sinyal stacked
-            for i, (key, sig) in enumerate(filtered.items()):
-                ax = fig.add_subplot(5, 1, i+1)
-                ax.plot(t, sig, color=colors_plot[i%5], lw=0.8)
-                ax.set_ylabel(key.split()[0], fontsize=8, rotation=0, labelpad=20)
-                ax.set_yticks([]) # Hilangkan angka Y axis agar bersih
-                if i < 4: ax.set_xticks([]) # Hilangkan X axis kecuali yg bawah
-                ax.grid(True, alpha=0.3)
-                # Hapus frame atas/kanan agar clean
-                ax.spines['top'].set_visible(False)
-                ax.spines['right'].set_visible(False)
+            # LOGIKA "ZOOM IN": Hanya ambil 3 detik pertama agar sinyal terlihat gelombangnya
+            # Jika ditampilkan 60 detik penuh, akan terlihat seperti blok hitam (kacau)
+            display_seconds = 3 
+            samples_to_show = int(display_seconds * fs)
+            
+            if len(raw) > samples_to_show:
+                t_plot = t[:samples_to_show]
+                raw_plot = raw[:samples_to_show]
+            else:
+                t_plot = t
+                raw_plot = raw
+
+            ax = fig.add_subplot(111)
+            
+            # Styling ala Medis (Background Hijau Grid)
+            ax.set_facecolor('#e8f5e9') # Hijau medis sangat muda
+            
+            # Plot sinyal dengan garis tipis dan warna gelap
+            ax.plot(t_plot, raw_plot, color='#2d3436', lw=0.8)
+            
+            # Buat Grid (Kotak-kotak)
+            ax.grid(True, which='both', color='#a5d6a7', linestyle='-', linewidth=0.5, alpha=0.8)
+            ax.minorticks_on()
+            ax.grid(True, which='minor', color='#a5d6a7', linestyle=':', linewidth=0.3, alpha=0.5)
+            
+            # Hapus frame kotak pembatas agar terlihat menyatu
+            for spine in ax.spines.values():
+                spine.set_visible(False)
+                
+            # Matikan label angka (biar bersih seperti gambar referensi)
+            ax.set_xticks([])
+            ax.set_yticks([])
             
             plt.tight_layout()
             
-            # Simpan plot ke buffer RAM
             img_buf = io.BytesIO()
-            plt.savefig(img_buf, format='png', dpi=100)
+            plt.savefig(img_buf, format='png', dpi=150, bbox_inches='tight', pad_inches=0)
             img_buf.seek(0)
             
-            # Tempel gambar dari buffer ke PDF
-            # Koordinat (x, y, width, height) - Y dihitung dari bawah kertas
-            c.drawImage(reportlab.lib.utils.ImageReader(img_buf), 50, y_pos - 350, width=500, height=320)
-            plt.close(fig) # Tutup plot agar memori hemat
+            # Tempel Gambar (Sesuaikan Y agar pas di bawah header)
+            c.drawImage(reportlab.lib.utils.ImageReader(img_buf), LEFT_X, h - 380, width=COL_WIDTH, height=200)
+            plt.close(fig)
 
-            # --- FOOTER ---
-            c.setFont("Helvetica-Oblique", 8)
-            c.drawString(50, 30, "Dokumen ini dihasilkan secara otomatis oleh Sistem Deteksi Dini Disleksia Berbasis EEG.")
+            # --- BAGIAN 2: SARAN ---
+            draw_box(LEFT_X + 20, h - 430, 200, 35, COLOR_HEADER_BG, radius=10)
+            draw_centered_text("Saran & Rekomendasi", LEFT_X + 120, h - 422, size=14)
             
-            # 3. Simpan File
+            REC_Y = h - 600
+            REC_H = 150
+            draw_box(LEFT_X, REC_Y, COL_WIDTH, REC_H, COLOR_CONTENT_BG, radius=15)
+            
+            an = ar['analysis']
+            rekomendasi_text = an['rekomendasi']
+            
+            c.setFont("Helvetica", 11)
+            c.setFillColor(COLOR_TEXT)
+            text_obj = c.beginText(LEFT_X + 15, REC_Y + REC_H - 25)
+            
+            words = rekomendasi_text.split()
+            line = ""
+            for word in words:
+                if c.stringWidth(line + word, "Helvetica", 11) < (COL_WIDTH - 30):
+                    line += word + " "
+                else:
+                    text_obj.textLine(line)
+                    line = word + " "
+            text_obj.textLine(line)
+            c.drawText(text_obj)
+
+            # ================= KOLOM KANAN =================
+            RIGHT_X = 310
+            
+            draw_box(RIGHT_X + 20, h - 150, 200, 35, COLOR_TITLE_BG, radius=10)
+            draw_centered_text("Keterangan", RIGHT_X + 120, h - 142, size=16)
+
+            # --- SKOR ---
+            Y_POS = h - 210
+            draw_box(RIGHT_X + 40, Y_POS, 160, 30, COLOR_HEADER_BG, radius=8)
+            draw_centered_text("Hasil Skor", RIGHT_X + 120, Y_POS + 8, size=12)
+            
+            Y_POS -= 80
+            draw_box(RIGHT_X, Y_POS, COL_WIDTH, 70, COLOR_CONTENT_BG, radius=15)
+            
+            score_val = an['confidence_score']
+            kriteria_num = an['kriteria_terpenuhi']
+            
+            if kriteria_num >= 6:
+                status_txt = "TINGGI (Kuat)"
+                color_status = HexColor("#d63031")
+            elif kriteria_num >= 4:
+                status_txt = "SEDANG (Indikasi)"
+                color_status = HexColor("#e17055")
+            else:
+                status_txt = "NORMAL"
+                color_status = HexColor("#00b894")
+            
+            c.setFont("Helvetica-Bold", 28)
+            c.setFillColor(color_status)
+            c.drawCentredString(RIGHT_X + 120, Y_POS + 35, f"{score_val:.0f}")
+            c.setFont("Helvetica", 12)
+            c.setFillColor(COLOR_TEXT)
+            c.drawCentredString(RIGHT_X + 120, Y_POS + 15, status_txt)
+
+            # --- DIAGNOSA ---
+            Y_POS -= 60
+            draw_box(RIGHT_X + 40, Y_POS, 160, 30, COLOR_HEADER_BG, radius=8)
+            draw_centered_text("Status Diagnosa", RIGHT_X + 120, Y_POS + 8, size=12)
+            
+            Y_POS -= 80
+            draw_box(RIGHT_X, Y_POS, COL_WIDTH, 70, COLOR_CONTENT_BG, radius=15)
+            
+            diagnosis_final = "TERINDIKASI DISLEKSIA" if kriteria_num >= 6 else "NORMAL"
+            
+            # Auto shrink font jika teks panjang
+            font_diag_size = 16 if len(diagnosis_final) < 20 else 14
+            c.setFont("Helvetica-Bold", font_diag_size)
+            c.setFillColor(COLOR_TEXT)
+            c.drawCentredString(RIGHT_X + 120, Y_POS + 35, diagnosis_final)
+
+            # --- DETAIL KRITERIA ---
+            Y_POS -= 200
+            draw_box(RIGHT_X, Y_POS, COL_WIDTH, 180, HexColor("#f1f2f6"), radius=15)
+            
+            c.setFont("Helvetica-Bold", 10)
+            c.setFillColor(COLOR_TEXT)
+            c.drawString(RIGHT_X + 15, Y_POS + 160, "Detail Indikator:")
+            
+            c.setFont("Helvetica", 9)
+            text_y = Y_POS + 140
+            for k, v in an['kriteria'].items():
+                if v['passed']:
+                    marker = "(+)"
+                    c.setFillColor(HexColor("#d63031"))
+                else:
+                    marker = "(-)"
+                    c.setFillColor(HexColor("#2d3436"))
+                
+                desc = v['description'][:35]
+                c.drawString(RIGHT_X + 15, text_y, f"{marker} {desc}")
+                text_y -= 15
+
+            # FOOTER
+            c.setFont("Helvetica-Oblique", 8)
+            c.setFillColor(HexColor("#b2bec3"))
+            c.drawCentredString(w/2, 30, "Dokumen ini digenerate otomatis oleh Sistem Deteksi Dini Disleksia")
+
             c.save()
-            messagebox.showinfo("Sukses", f"Laporan berhasil disimpan:\n{filename}")
+            
+            # UPLOAD DRIVE
+            drive_sync.upload_file_background(filename)
+            
+            messagebox.showinfo("Sukses", f"Laporan PDF tersimpan:\n{filename}")
+            
+        except Exception as e:
+            messagebox.showerror("Gagal Simpan PDF", str(e))
+    
+    def save_to_pdf(self):
+        """Menyimpan PDF dengan Visualisasi Gelombang Terpisah (Stacked)"""
+        ar = self.controller.analysis_results
+        if not ar or not ar.get('ok'):
+            messagebox.showerror("Error", "Tidak ada data untuk disimpan.")
+            return
+        
+        try:
+            # 1. Setup File
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            filename = f"Hasil_Tes_{timestamp}.pdf"
+            
+            c = canvas.Canvas(filename, pagesize=A4)
+            w, h = A4
+            
+            # --- PALET WARNA ---
+            COLOR_TITLE_BG = HexColor("#7bed9f")
+            COLOR_HEADER_BG = HexColor("#ffcccc")
+            COLOR_CONTENT_BG = HexColor("#d1f2eb")
+            COLOR_TEXT = HexColor("#2d3436")
+            
+            # Helper: Gambar Kotak Rounded
+            def draw_box(x, y, width, height, color, radius=10):
+                c.setFillColor(color)
+                c.setStrokeColor(color)
+                c.roundRect(x, y, width, height, radius, fill=1, stroke=0)
+
+            # Helper: Text Tengah
+            def draw_centered_text(text, x_center, y, font="Helvetica-Bold", size=14, color=HexColor("#000000")):
+                c.setFont(font, size)
+                c.setFillColor(color)
+                c.drawCentredString(x_center, y, text)
+
+            # ================= HEADER =================
+            draw_box(w/2 - 150, h - 80, 300, 50, COLOR_TITLE_BG, radius=15)
+            draw_centered_text("HASIL DIAGNOSA", w/2, h - 68, size=22)
+            
+            c.setFont("Helvetica", 10)
+            c.setFillColor(HexColor("#636e72"))
+            c.drawCentredString(w/2, h - 100, f"Tanggal: {datetime.now().strftime('%d %B %Y')}")
+
+            # ================= KOLOM KIRI =================
+            LEFT_X = 50
+            COL_WIDTH = 240
+            
+            # --- BAGIAN 1: HASIL SENSOR (VISUALISASI GELOMBANG) ---
+            # Header
+            draw_box(LEFT_X + 20, h - 150, 200, 35, COLOR_HEADER_BG, radius=10)
+            draw_centered_text("Visualisasi Gelombang", LEFT_X + 120, h - 142, size=14)
+            
+            # --- GENERATE PLOT STACKED (MIRIP REFERENSI) ---
+            # Kita buat figur agak tinggi agar muat 5 gelombang
+            fig = plt.figure(figsize=(5, 6)) 
+            
+            # Data Preparation
+            t = ar['t']
+            fs = ar.get('fs', 256)
+            
+            # TEKNIK "ZOOM": Ambil 2 detik saja agar gelombang terlihat jelas (tidak rapat/hitam)
+            samples_to_show = int(2 * fs) 
+            
+            if len(t) > samples_to_show:
+                t_slice = t[:samples_to_show]
+            else:
+                t_slice = t
+                samples_to_show = len(t)
+
+            # Ambil sinyal terfilter
+            filtered = ar['filtered']
+            
+            # Mapping Nama Pendek ke Data & Warna
+            # Pastikan Key Dictionary ini sesuai dengan output di analysis.py
+            bands_data = [
+                ("Delta", filtered.get("Delta (0.5–4 Hz)")[:samples_to_show], '#0000FF'),  # Biru
+                ("Theta", filtered.get("Theta (4–8 Hz)")[:samples_to_show], '#FFA500'),    # Oranye
+                ("Alpha", filtered.get("Alpha (8–13 Hz)")[:samples_to_show], '#008000'),    # Hijau
+                ("Beta",  filtered.get("Beta (13–30 Hz)")[:samples_to_show],  '#FF0000'),    # Merah
+                ("Gamma", filtered.get("Gamma (30–45 Hz)")[:samples_to_show], '#800080')     # Ungu
+            ]
+
+            # Loop Membuat 5 Subplot Vertikal
+            for i, (name, sig, color) in enumerate(bands_data):
+                # 5 Baris, 1 Kolom, Posisi ke i+1
+                ax = fig.add_subplot(5, 1, i+1)
+                
+                # Plot Sinyal
+                if sig is not None:
+                    ax.plot(t_slice, sig, color=color, lw=1.2)
+                
+                # Styling Minimalis (Hapus Kotak & Angka)
+                ax.axis('off')
+                
+                # Tambahkan Label Nama di Kiri Sinyal
+                # Koordinat (-0.15, 0.5) artinya di kiri luar area plot, tengah vertikal
+                ax.text(-0.02, 0.5, name, transform=ax.transAxes, 
+                        fontsize=11, fontweight='bold', 
+                        verticalalignment='center', horizontalalignment='right', color='#2d3436')
+
+            plt.tight_layout()
+            
+            # Simpan ke Memory
+            img_buf = io.BytesIO()
+            plt.savefig(img_buf, format='png', dpi=120, bbox_inches='tight', pad_inches=0.1)
+            img_buf.seek(0)
+            
+            # Tempel Gambar ke PDF (Sesuaikan tinggi dan lebarnya)
+            c.drawImage(reportlab.lib.utils.ImageReader(img_buf), LEFT_X - 10, h - 450, width=COL_WIDTH + 20, height=280)
+            plt.close(fig)
+
+            # --- BAGIAN 2: SARAN ---
+            # Geser posisi Y agak ke bawah karena gambar grafik sekarang lebih tinggi
+            REC_Y_HEADER = h - 480
+            draw_box(LEFT_X + 20, REC_Y_HEADER, 200, 35, COLOR_HEADER_BG, radius=10)
+            draw_centered_text("Saran & Rekomendasi", LEFT_X + 120, REC_Y_HEADER + 8, size=14)
+            
+            REC_Y = h - 650
+            REC_H = 150
+            draw_box(LEFT_X, REC_Y, COL_WIDTH, REC_H, COLOR_CONTENT_BG, radius=15)
+            
+            an = ar['analysis']
+            rekomendasi_text = an['rekomendasi']
+            
+            c.setFont("Helvetica", 11)
+            c.setFillColor(COLOR_TEXT)
+            text_obj = c.beginText(LEFT_X + 15, REC_Y + REC_H - 25)
+            
+            words = rekomendasi_text.split()
+            line = ""
+            for word in words:
+                if c.stringWidth(line + word, "Helvetica", 11) < (COL_WIDTH - 30):
+                    line += word + " "
+                else:
+                    text_obj.textLine(line)
+                    line = word + " "
+            text_obj.textLine(line)
+            c.drawText(text_obj)
+
+            # ================= KOLOM KANAN =================
+            RIGHT_X = 310
+            
+            draw_box(RIGHT_X + 20, h - 150, 200, 35, COLOR_TITLE_BG, radius=10)
+            draw_centered_text("Keterangan", RIGHT_X + 120, h - 142, size=16)
+
+            # --- SKOR ---
+            Y_POS = h - 210
+            draw_box(RIGHT_X + 40, Y_POS, 160, 30, COLOR_HEADER_BG, radius=8)
+            draw_centered_text("Hasil Skor", RIGHT_X + 120, Y_POS + 8, size=12)
+            
+            Y_POS -= 80
+            draw_box(RIGHT_X, Y_POS, COL_WIDTH, 70, COLOR_CONTENT_BG, radius=15)
+            
+            score_val = an['confidence_score']
+            kriteria_num = an['kriteria_terpenuhi']
+            
+            if kriteria_num >= 6:
+                status_txt = "TINGGI (Kuat)"
+                color_status = HexColor("#d63031")
+            elif kriteria_num >= 4:
+                status_txt = "SEDANG (Indikasi)"
+                color_status = HexColor("#e17055")
+            else:
+                status_txt = "NORMAL"
+                color_status = HexColor("#00b894")
+            
+            c.setFont("Helvetica-Bold", 28)
+            c.setFillColor(color_status)
+            c.drawCentredString(RIGHT_X + 120, Y_POS + 35, f"{score_val:.0f}")
+            c.setFont("Helvetica", 12)
+            c.setFillColor(COLOR_TEXT)
+            c.drawCentredString(RIGHT_X + 120, Y_POS + 15, status_txt)
+
+            # --- DIAGNOSA ---
+            Y_POS -= 60
+            draw_box(RIGHT_X + 40, Y_POS, 160, 30, COLOR_HEADER_BG, radius=8)
+            draw_centered_text("Status Diagnosa", RIGHT_X + 120, Y_POS + 8, size=12)
+            
+            Y_POS -= 80
+            draw_box(RIGHT_X, Y_POS, COL_WIDTH, 70, COLOR_CONTENT_BG, radius=15)
+            
+            diagnosis_final = "TERINDIKASI DISLEKSIA" if kriteria_num >= 6 else "NORMAL"
+            
+            font_diag_size = 16 if len(diagnosis_final) < 20 else 14
+            c.setFont("Helvetica-Bold", font_diag_size)
+            c.setFillColor(COLOR_TEXT)
+            c.drawCentredString(RIGHT_X + 120, Y_POS + 35, diagnosis_final)
+
+            # --- DETAIL KRITERIA ---
+            Y_POS -= 200
+            draw_box(RIGHT_X, Y_POS, COL_WIDTH, 180, HexColor("#f1f2f6"), radius=15)
+            
+            c.setFont("Helvetica-Bold", 10)
+            c.setFillColor(COLOR_TEXT)
+            c.drawString(RIGHT_X + 15, Y_POS + 160, "Detail Indikator:")
+            
+            c.setFont("Helvetica", 9)
+            text_y = Y_POS + 140
+            for k, v in an['kriteria'].items():
+                if v['passed']:
+                    marker = "(+)"
+                    c.setFillColor(HexColor("#d63031"))
+                else:
+                    marker = "(-)"
+                    c.setFillColor(HexColor("#2d3436"))
+                
+                desc = v['description'][:35]
+                c.drawString(RIGHT_X + 15, text_y, f"{marker} {desc}")
+                text_y -= 15
+
+            # FOOTER
+            c.setFont("Helvetica-Oblique", 8)
+            c.setFillColor(HexColor("#b2bec3"))
+            c.drawCentredString(w/2, 30, "Dokumen ini digenerate otomatis oleh Sistem Deteksi Dini Disleksia")
+
+            c.save()
+            
+            # UPLOAD DRIVE
+            drive_sync.upload_file_background(filename)
+            
+            messagebox.showinfo("Sukses", f"Laporan PDF tersimpan:\n{filename}")
             
         except Exception as e:
             messagebox.showerror("Gagal Simpan PDF", str(e))
