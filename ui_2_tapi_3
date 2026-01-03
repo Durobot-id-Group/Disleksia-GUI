@@ -1180,6 +1180,18 @@ class ResultPage(tk.Frame):
             messagebox.showerror("Gagal Simpan PDF", str(e))
 
     def restart_test(self):
+        # Reset state
         self.controller.current_question = 1
-        self.controller.frames[self.controller.frames[StartPage].__class__].load_label.config(text="File EEG: (belum dimuat)") # Reset label file (opsional)
-        self.controller.show_frame(StartPage)
+        self.controller.eeg_filename = None
+        self.controller.eeg_logger = None
+        self.controller.analysis_results = None
+
+        # Reset label di StartPage (opsional)
+        self.controller.frames[StartPage].load_label.config(
+            text="File EEG: (belum dimuat)"
+        )
+
+        # Pindah ke QRPage, bukan StartPage
+        self.controller.show_frame(QRPage)
+        self.controller.frames[QRPage].start_page()  # putar audio pemasangan alat
+
