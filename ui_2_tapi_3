@@ -159,6 +159,11 @@ class IntroPage(tk.Frame):
                     except AttributeError:
                         resample = Image.ANTIALIAS
 
+                    try:
+                        resample = Image.Resampling.LANCZOS
+                    except AttributeError:
+                        resample = Image.ANTIALIAS
+
                     img = img.resize(new_size, resample)
 
                     photo = ImageTk.PhotoImage(img)
