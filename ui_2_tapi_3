@@ -159,11 +159,6 @@ class IntroPage(tk.Frame):
                     except AttributeError:
                         resample = Image.ANTIALIAS
 
-                    try:
-                        resample = Image.Resampling.LANCZOS
-                    except AttributeError:
-                        resample = Image.ANTIALIAS
-
                     img = img.resize(new_size, resample)
 
                     photo = ImageTk.PhotoImage(img)
@@ -283,7 +278,12 @@ class QRPage(tk.Frame):
                     ratio = min(max_width / img.width, max_height / img.height)
                     new_size = (int(img.width * ratio * 0.9), int(img.height * ratio * 0.9))
                     
-                    img = img.resize(new_size, Image.Resampling.LANCZOS)
+                    try:
+                        resample = Image.Resampling.LANCZOS
+                    except AttributeError:
+                        resample = Image.ANTIALIAS
+
+                    img = img.resize(new_size, resample)
                     photo = ImageTk.PhotoImage(img)
                     
                     self.qr_label = tk.Label(self.qr_frame, image=photo, bg="#f5f7fa")
@@ -306,28 +306,20 @@ class QRPage(tk.Frame):
         self.canvas.coords(self.canvas_window, x, y)
     
     def start_page(self):
-        """Dipanggil saat halaman dimunculkan"""
-        self.play_audio()
-    
-    def play_audio(self):
-        """Putar audio pemasangan alat"""
+        """Dipanggil saat halaman dimunculkan - Putar audio pemasangan alat"""
+        # UBAH: Gunakan try-except seperti tes selesai.mp3
         try:
             if pygame and os.path.exists("audio/pemasangan alat.mp3"):
                 pygame.mixer.music.load("audio/pemasangan alat.mp3")
                 pygame.mixer.music.play()
-        except Exception as e:
-            print(f"Error playing audio: {e}")
+        except: 
+            pass
     
     def go_to_start(self):
-        """Pindah ke StartPage"""
-        try:
-            # Stop audio jika masih playing
-            if pygame:
-                pygame.mixer.music.stop()
-        except:
-            pass
-        
+        """Pindah ke StartPage dan trigger audionya"""
+        # Pindah ke StartPage
         self.controller.show_frame(StartPage)
+        self.controller.frames[StartPage].start_page()
 
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -351,9 +343,6 @@ class StartPage(tk.Frame):
         self.button_frame = tk.Frame(self.content_frame, bg="#f5f7fa")
         self.button_frame.pack(pady=10)
 
-        # self.load_button = tk.Button(self.button_frame, text="Muat Data EEG (CSV)", font=("Arial", 12), bg="#6aa84f", fg="white", relief="flat", cursor="hand2", command=self.load_eeg)
-        # self.load_button.grid(row=0, column=0, padx=6)
-
         self.start_button = tk.Button(self.button_frame, text="MULAI TES", font=("Arial", 18, "bold"), bg="#4a90e2", fg="white", relief="flat", cursor="hand2", padx=24, pady=10, command=self.start_with_audio)
         self.start_button.grid(row=0, column=1, padx=6)
 
@@ -364,18 +353,14 @@ class StartPage(tk.Frame):
         self.canvas.coords(self.canvas_window, event.width // 2, event.height // 2)
 
     def start_page(self):
-        """TAMBAHKAN METHOD INI - Dipanggil saat halaman StartPage dimunculkan"""
-        self.play_audio_pelaksanaan()
-    
-    def play_audio_pelaksanaan(self):
-        """Putar audio pelaksanaan tes saat masuk halaman StartPage"""
+        """Dipanggil saat halaman StartPage dimunculkan - Putar audio pelaksanaan tes"""
+        # UBAH: Gunakan try-except seperti tes selesai.mp3
         try:
             if pygame and os.path.exists("audio/pelaksanaan tes.mp3"):
                 pygame.mixer.music.load("audio/pelaksanaan tes.mp3")
                 pygame.mixer.music.play()
-                print("Playing: audio/pelaksanaan tes.mp3")
-        except Exception as e:
-            print(f"Error playing audio pelaksanaan tes: {e}")
+        except: 
+            pass
 
     def load_eeg(self):
         fname = filedialog.askopenfilename(title="Pilih file CSV EEG", filetypes=[("CSV files","*.csv"),("All files","*.*")])
@@ -398,7 +383,8 @@ class StartPage(tk.Frame):
                 if os.path.exists("audio/soal 1.mp3"):
                     pygame.mixer.music.load("audio/soal 1.mp3")
                     pygame.mixer.music.play()
-        except: pass
+        except: 
+            pass
 
         self.check_audio_finished()
 
