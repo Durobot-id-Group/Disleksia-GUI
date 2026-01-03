@@ -317,8 +317,8 @@ class QRPage(tk.Frame):
         """Dipanggil saat halaman dimunculkan - Putar audio pemasangan alat"""
         # UBAH: Gunakan try-except seperti tes selesai.mp3
         try:
-            if pygame and os.path.exists("audio/pemasangan alat.mp3"):
-                pygame.mixer.music.load("audio/pemasangan alat.mp3")
+            if pygame and os.path.exists("audio/pemasangan alat.MP3"):
+                pygame.mixer.music.load("audio/pemasangan alat.MP3")
                 pygame.mixer.music.play()
         except: 
             pass
@@ -364,8 +364,8 @@ class StartPage(tk.Frame):
         """Dipanggil saat halaman StartPage dimunculkan - Putar audio pelaksanaan tes"""
         # UBAH: Gunakan try-except seperti tes selesai.mp3
         try:
-            if pygame and os.path.exists("audio/pelaksanaan tes.mp3"):
-                pygame.mixer.music.load("audio/pelaksanaan tes.mp3")
+            if pygame and os.path.exists("audio/pelaksanaan tes.MP3"):
+                pygame.mixer.music.load("audio/pelaksanaan tes.MP3")
                 pygame.mixer.music.play()
         except: 
             pass
