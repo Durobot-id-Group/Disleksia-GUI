@@ -25,14 +25,22 @@ from analysis import run_eeg_pipeline
 # pygame.mixer.init()
 
 # Setup Audio (Pygame) tetap disini karena terkait UI/Experience
+import os
+
+os.environ['SDL_AUDIODRIVER'] = 'alsa'
+os.environ['SDL_AUDIODRIVER'] = 'alsa'
+os.environ['SDL_AUDIODRIVER'] = 'alsa'
+
 try:
     import pygame
-    if 'SDL_AUDIODRIVER' not in os.environ:
-        os.environ['SDL_AUDIODRIVER'] = 'alsa'
-    pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
+    pygame.mixer.pre_init(22050, -16, 2, 512)
+    pygame.init()
+    pygame.mixer.init()
     pygame.mixer.music.set_volume(0.8)
-except Exception:
+except Exception as e:
+    print("Audio init error:", e)
     pygame = None
+
 
 # ================== STOPWATCH CLASS ==================
 class Stopwatch:
