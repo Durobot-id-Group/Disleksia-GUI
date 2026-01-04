@@ -383,3 +383,56 @@ def upload_file_background(pdf_path, callback_success=None):
     t.daemon = True
     t.start()
 
+#=============================================================================
+
+
+def show_qr_popup(self, url):
+        """Menampilkan Popup QR Code Fullscreen dengan Tombol Tutup"""
+        import qrcode
+        from PIL import Image, ImageTk
+
+        # Hapus popup loading jika masih ada
+        if hasattr(self, 'loading_popup') and self.loading_popup.winfo_exists():
+            self.loading_popup.destroy()
+
+        # 1. Buat Window Baru
+        qr_window = tk.Toplevel(self)
+        qr_window.title("Scan Download")
+        
+        # 2. Set Fullscreen (Menyesuaikan ukuran layar berapapun)
+        qr_window.attributes("-fullscreen", True)
+        qr_window.configure(bg="white")
+        
+        # Frame utama agar isi berada di tengah
+        main_frame = tk.Frame(qr_window, bg="white")
+        main_frame.pack(expand=True, fill="both")
+
+        # Judul
+        tk.Label(main_frame, text="UPLOAD BERHASIL!", font=("Arial", 16, "bold"), fg="#27ae60", bg="white").pack(pady=(15, 5))
+        
+        # 3. Generate QR Code
+        qr = qrcode.QRCode(box_size=10, border=1) # Border tipis agar muat
+        qr.add_data(url)
+        qr.make(fit=True)
+        img_qr = qr.make_image(fill_color="black", back_color="white")
+        
+        # Resize QR agar pas di layar 3.5 inch (tinggi 320px)
+        # Kita pakai ukuran 180x180 agar sisa ruang untuk tombol
+        img_qr = img_qr.resize((180, 180), Image.Resampling.LANCZOS)
+        photo_qr = ImageTk.PhotoImage(img_qr)
+
+        lbl_img = tk.Label(main_frame, image=photo_qr, bg="white")
+        lbl_img.image = photo_qr # PENTING: Simpan referensi gambar
+        lbl_img.pack(pady=5)
+        
+        # Instruksi Kecil
+        tk.Label(main_frame, text="Scan untuk unduh PDF", font=("Arial", 10), bg="white", fg="#7f8c8d").pack(pady=(0, 5))
+
+        # 4. TOMBOL TUTUP (BESAR & JELAS)
+        # tombol ditaruh di pack side bottom agar selalu di bawah
+        btn_close = tk.Button(main_frame, text="TUTUP WINDOW", font=("Arial", 12, "bold"), 
+                              bg="#e74c3c", fg="white", 
+                              activebackground="#c0392b", activeforeground="white",
+                              width=20, height=2, relief="flat",
+                              command=qr_window.destroy) # Fungsi menutup window
+        btn_close.pack(side="bottom", pady=15)
